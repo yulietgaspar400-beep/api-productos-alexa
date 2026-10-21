@@ -28,6 +28,7 @@ services:
       PGDATABASE: appdb
       PGUSER: appuser
       PGPASSWORD: cambiar_esta_clave
+      API_KEY: local-demo-key
     ports:
       - "3000:3000"
     depends_on:
@@ -36,3 +37,5 @@ services:
 
 volumes:
   postgres_data:
+
+

@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 
 const port = Number(process.env.PORT ?? 3000);
 const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
   host: process.env.PGHOST ?? 'localhost',
   port: Number(process.env.PGPORT ?? 5432),
   database: process.env.PGDATABASE ?? 'appdb',
@@ -50,6 +51,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (req.method === 'POST' && path === '/api/products') {
+      if (process.env.API_KEY && req.headers['x-api-key'] !== process.env.API_KEY) return json(res, 401, { error: 'API key inválida o ausente' });
       const { name, description = '', price, stock = 0 } = await readBody(req);
       if (typeof name !== 'string' || !name.trim() || typeof description !== 'string' ||
           !Number.isFinite(Number(price)) || Number(price) < 0 ||
@@ -72,6 +74,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (match && req.method === 'PUT') {
+      if (process.env.API_KEY && req.headers['x-api-key'] !== process.env.API_KEY) return json(res, 401, { error: 'API key inválida o ausente' });
       const { name, description = '', price, stock = 0 } = await readBody(req);
       if (typeof name !== 'string' || !name.trim() || typeof description !== 'string' ||
           !Number.isFinite(Number(price)) || Number(price) < 0 ||
@@ -86,6 +89,7 @@ const server = createServer(async (req, res) => {
     }
 
     if (match && req.method === 'DELETE') {
+      if (process.env.API_KEY && req.headers['x-api-key'] !== process.env.API_KEY) return json(res, 401, { error: 'API key inválida o ausente' });
       const result = await pool.query('DELETE FROM products WHERE id = $1 RETURNING id', [match[1]]);
       return result.rowCount ? json(res, 200, { deleted: true, id: result.rows[0].id }) : json(res, 404, { error: 'Producto no encontrado' });
     }
@@ -108,3 +112,5 @@ async function shutdown() {
 }
 process.on('SIGTERM', shutdown);
 process.on('SIGINT', shutdown);
+
+
