@@ -12,6 +12,23 @@ docker compose up -d --build
 
 API: `http://localhost:3000` · PostgreSQL: `localhost:5432`.
 
+### Conectar la API local a PostgreSQL de Render
+
+Si quieres que la API que ejecutas en Docker use la misma base de Render, crea un archivo `.env` en la raíz del repositorio y agrega la **External Database URL** de Render (Render → PostgreSQL → Connect → External Database URL):
+
+```dotenv
+DATABASE_URL=postgresql://usuario:clave@host-render:5432/base
+DATABASE_SSL=true
+```
+
+No compartas ni subas ese archivo: `.env` está excluido de Git. Después reinicia la API:
+
+```powershell
+docker compose up -d --build
+```
+
+La API local seguirá disponible en `http://localhost:3000`, pero las altas y consultas irán a la base de Render. Para volver a la base Docker local, borra `DATABASE_URL` del `.env` (o elimina el archivo) y ejecuta de nuevo `docker compose up -d --build`.
+
 ## Rutas
 
 - `GET /api/health` — estado de la API y conexión a PostgreSQL.

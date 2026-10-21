@@ -2,13 +2,18 @@ import { createServer } from 'node:http';
 import { Pool } from 'pg';
 
 const port = Number(process.env.PORT ?? 3000);
+const databaseUrl = process.env.DATABASE_URL;
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  host: process.env.PGHOST ?? 'localhost',
-  port: Number(process.env.PGPORT ?? 5432),
-  database: process.env.PGDATABASE ?? 'appdb',
-  user: process.env.PGUSER ?? 'appuser',
-  password: process.env.PGPASSWORD ?? 'cambiar_esta_clave',
+  ...(databaseUrl
+    ? { connectionString: databaseUrl }
+    : {
+        host: process.env.PGHOST ?? 'localhost',
+        port: Number(process.env.PGPORT ?? 5432),
+        database: process.env.PGDATABASE ?? 'appdb',
+        user: process.env.PGUSER ?? 'appuser',
+        password: process.env.PGPASSWORD ?? 'cambiar_esta_clave',
+      }),
+  ...(process.env.DATABASE_SSL === 'true' ? { ssl: { rejectUnauthorized: false } } : {}),
 });
 
 const json = (res, status, body) => {
